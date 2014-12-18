@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.2.0, 2014-12-18T16:57:31. -->
+<!-- Written by QtCreator 3.2.0, 2014-12-18T18:03:08. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -223,8 +223,8 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Raytracer2DGSGL</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Sebastian/Documents/GitHub/Raytracer2DGSGL/Raytracer2DGSGL.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Raytracer2DGSGL2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Sebastian/Documents/GitHub/Raytracer2DGSGL/2D-RaytracerGLSL/Raytracer2DGSGL.pro</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Raytracer2DGSGL.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>

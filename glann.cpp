@@ -27,7 +27,7 @@ void GLANN::resizeGL(int w, int h){
 
 void GLANN::paintGL(){
     render();
-    //getFeedbackTexture();
+    getFeedbackTexture();
 }
 
 void GLANN::timerEvent(QTimerEvent *)
@@ -127,6 +127,7 @@ void GLANN::render(){
 
      //increment number of rendered passes
      mRenderPasses++;
+     //qDebug() << mRenderPasses << "\n";
 }
 
 void GLANN::getFeedbackTexture(){
