@@ -55,7 +55,7 @@ vec3 lineSegmentIntersection(vec2 r0, vec2 r1, vec2 a, vec2 b)
 
 void main()
 {
-    vec4 renderedImagePixel = texture(CalculatedImage,gl_TexCoord[0].st);
+    highp vec4 renderedImagePixel = texture(CalculatedImage,gl_TexCoord[0].st);
 
     float randomFl = rand(vec3(gl_TexCoord[0].st.x,gl_TexCoord[0].st.y,seed));
 
@@ -90,20 +90,21 @@ void main()
     float phase = unpack(texelFetch(Objects,ivec2(zIndex,1),0));
     float wavelength = unpack(texelFetch(Objects,ivec2(zIndex,0),0));
 
-    float bright = unpack(texelFetch(Objects,ivec2(zIndex,3),0))*5.0;
+    float bright = unpack(texelFetch(Objects,ivec2(zIndex,3),0));
 
-    float amplitude = bright * (1.0+sin(accZBuffer*2*pi*1.0/wavelength+period*2*pi+phase*2*pi));
+    float amplitude = 5.0 * bright *
+                      (1.0+sin(accZBuffer*2.0*pi*1.0/wavelength+period*2.0*pi+phase*2.0*pi))/2.0;
 
     //color = vec4(gl_TexCoord[0].st.x,gl_TexCoord[0].st.y,0.0,0.0);
 
-    vec4 currTexel = vec4(amplitude*color.r,amplitude*color.g,amplitude*color.b,1.0);
+    highp vec4 currTexel = vec4(amplitude*color.r,amplitude*color.g,amplitude*color.b,1.0);
     //if(zIndex == false) currTexel = vec4(1.0,0,0,1.0);
     //else currTexel = vec4(0.0,1.0,1.0,1.0);
 
-    renderedImagePixel = (renderedImagePixel * numRenderPass + currTexel)/(numRenderPass+1);
+    renderedImagePixel = clamp((renderedImagePixel * numRenderPass + currTexel)/(numRenderPass+1),0,1);
 
     //renderedImagePixel = texelFetch(Objects,ivec2(x*14,y*6),0);
 
-    gl_FragColor = renderedImagePixel;
+    gl_FragColor = currTexel;
 }
 
