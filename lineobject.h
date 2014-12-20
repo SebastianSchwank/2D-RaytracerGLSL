@@ -13,7 +13,7 @@ class LineObject
 {
 public:
     LineObject();
-    LineObject(float x0, float y0, float x1, float y1, float emission, unsigned int color, float phase, float frequency);
+    LineObject(float x0, float y0, float x1, float y1, unsigned int color, float emission, float phase, float frequency);
     unsigned int getAttributeAsPixel(int i);
 
     static int getSize();

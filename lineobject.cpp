@@ -4,7 +4,7 @@ LineObject::LineObject(){
 }
 
 LineObject::LineObject(float x0, float y0, float x1, float y1,
-                       float emission, unsigned int color,
+                       unsigned int color, float emission,
                        float phase, float frequency){
     FloatBits UintRgba;
 
@@ -17,10 +17,10 @@ LineObject::LineObject(float x0, float y0, float x1, float y1,
     UintRgba.i_ = (unsigned int) (y1*4294967295.0);
     mData.append(UintRgba.i_);
 
-    mData.append(color);
-
     UintRgba.i_ = (unsigned int) (emission*4294967295.0);
     mData.append(UintRgba.i_);
+
+    mData.append(color);
 
     UintRgba.i_ = (unsigned int) (phase*4294967295.0);
     mData.append(UintRgba.i_);
