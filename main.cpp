@@ -49,10 +49,10 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.setApplicationName("GLANN");
+    app.setApplicationName("GPU_RT_2D");
     app.setApplicationVersion("0.1");
 #ifndef QT_NO_OPENGL
-    GLANN widget(500, 500, 10, (new SceneLoader("demoScene"))->getScene());
+    GLANN widget(512, 512, 10, (new SceneLoader("demoScene"))->getScene());
 
     widget.show();
 #else

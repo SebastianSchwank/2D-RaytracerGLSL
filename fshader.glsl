@@ -15,26 +15,22 @@ const float pi = 3.14159265359;
 
 uniform float seed = pi;
 
-const float x = 1.0/255.0;
-const float y = 1.0/65025.0;
-const float z = 1.0/16581375.0;
-
-//unpack a given rgba value to a 0..1 Float value
-float unpack( vec4 rgba ) {
-  return dot( rgba, vec4(1.0, x, y, z) );
+// Unpacking a [0-1] float value from a 4D vector where each component was a 8-bits integer
+float unpack(const vec4 value)
+{
+   const vec4 bitSh = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
+   return(dot(value, bitSh));
 }
 
 //random [0..1]
 highp float rand(vec2 co,float seed)
 {
-    co.x = co.x + seed*width;
-
     highp float a = 12.9898;
     highp float b = 78.233;
     highp float c = 43758.5453;
     highp float dt= dot(co.xy ,vec2(a,b));
     highp float sn= mod(dt,3.14);
-    return fract(sin(sn) * c);
+    return fract(sin(sn*seed*pi) * c);
 }
 
 //Calculate intersection between 2 Line segments
@@ -65,14 +61,15 @@ void main()
 {
     vec4 renderedImagePixel = texture(CalculatedImage,gl_TexCoord[0].st);
 
-    float alpha = rand(gl_TexCoord[0].st,seed)*2.0*pi;
-    float x = gl_TexCoord[0].st.x;
-    float y = 1-gl_TexCoord[0].st.y;
+    float randomFl = rand(gl_TexCoord[0].st,seed);
+    randomFl = rand(gl_TexCoord[0].st,randomFl);
+
+    float alpha = randomFl*pi*pi;
+    float x = (gl_TexCoord[0].st.x);
+    float y = (gl_TexCoord[0].st.y);
 
     vec3 intersecBuffer = vec3(0.0,0.0,99999.9999);
     int zIndex = -1;
-
-    vec4 currColor = vec4(0,0,0,0);
 
     for(int i = 0; i < numObjects; i++){
         highp float x1,x2,y1,y2;
@@ -90,7 +87,7 @@ void main()
         }
     }
 
-    float bright = unpack(texelFetch(Objects,ivec2(zIndex,1),0));
+    float bright = unpack(texelFetch(Objects,ivec2(zIndex,1),0))*10.0;
     vec4 color = texelFetch(Objects,ivec2(zIndex,0),0);
 
     //color = vec4(gl_TexCoord[0].st.x,gl_TexCoord[0].st.y,0.0,0.0);
@@ -103,7 +100,6 @@ void main()
                               unpack(texelFetch(Objects,ivec2(x*5,y*6),0)),
                               unpack(texelFetch(Objects,ivec2(x*5,y*6),0)),1.0);
 */
-
     gl_FragColor = renderedImagePixel;
 }
 

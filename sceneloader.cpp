@@ -5,8 +5,16 @@ SceneLoader::SceneLoader(QString filename)
     if(filename == "demoScene"){
         mScene = new Scene();
 
-        LineObject l0(0.7,0.3,0.3,0.7,1.0,qRgba(255,255,255,255));
+        for(int i = 0; i < 500; i++){
+        LineObject l0(1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
+                      1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
+                      (1.0f*qrand()/RAND_MAX)/2.0,
+                      qRgba((1.0f*qrand()/RAND_MAX)*255.0,
+                            (1.0f*qrand()/RAND_MAX)*255.0,
+                            (1.0f*qrand()/RAND_MAX)*255.0,255));
         mScene->addObject(l0);
+        }
+
     }
 }
 

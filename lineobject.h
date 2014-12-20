@@ -19,8 +19,6 @@ public:
     static int getSize();
 
 private:
-    QVector<unsigned char> packFloat(float f);
-
     QVector<unsigned int> mData;
 };
 

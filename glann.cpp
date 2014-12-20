@@ -17,8 +17,13 @@ void GLANN::initializeGL(){
     initializeGLFunctions();
     initShader();
     initTextures();
+    //initFbo();
     // Use QBasicTimer because its faster than QTimer
     timer.start(0, this);
+}
+
+void GLANN::initFbo(){
+    //glGenFramebuffers(1, &fboId);
 }
 
 void GLANN::resizeGL(int w, int h){
@@ -26,8 +31,62 @@ void GLANN::resizeGL(int w, int h){
 }
 
 void GLANN::paintGL(){
+
     render();
-    getFeedbackTexture();
+
+    //getFeedbackTexture();
+
+    //increment number of rendered passes
+    mRenderPasses++;
+}
+
+void GLANN::render(){
+
+    // Set random seed
+    program.setUniformValue("seed", ((float)qrand()/RAND_MAX));
+
+    //Set number of alredy rendered passes
+    program.setUniformValue("numRenderPass",mRenderPasses);
+
+    //Bind last rendered Image
+    //pixelsRenderedImage = bindTexture(*renderedImage);
+
+    //Load Identity
+    glLoadIdentity();
+
+    //Move to rendering point
+    glTranslatef( -1.0, -1.0, 0.0f );
+
+    glEnable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, pixelsScene);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, pixelsRenderedImage);
+
+    // Draw geometry
+    //Render textured quad
+    glBegin( GL_QUADS );
+        glTexCoord2f( 0.f, 0.f ); glVertex2f( 0, 0);
+        glTexCoord2f( 1.f, 0.f ); glVertex2f( 2.0, 0);
+        glTexCoord2f( 1.f, 1.f ); glVertex2f( 2.0, 2.0);
+        glTexCoord2f( 0.f, 1.f ); glVertex2f( 0, 2.0);
+     glEnd();
+
+     // Getting the pixels from the upper left 512x512 part of the screen:
+
+     //Get the rendered Image as Texure
+     //glReadBuffer(GL_BACK);
+     glEnable(GL_TEXTURE_2D);
+
+     glBindTexture(GL_TEXTURE_2D,pixelsRenderedImage);
+
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+     glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,width,height,0);
+
 }
 
 void GLANN::timerEvent(QTimerEvent *)
@@ -46,16 +105,9 @@ void GLANN::initTextures(){
     //Bind WeightmapTexture
     pixelsScene = QGLWidget::bindTexture(*SceneImage);
 
-    // Set nearest filtering mode for texture minification
+    // Poor filtering. Needed !
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    // Set bilinear filtering mode for texture magnification
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 void GLANN::initShader(){
@@ -77,10 +129,10 @@ void GLANN::initShader(){
         close();
 
     // Use texture unit 0
-    program.setUniformValue("Objects",0);
+    program.setUniformValue("CalculatedImage",0);
 
     // Use texture unit 1
-    program.setUniformValue("CalculatedImage",1);
+    program.setUniformValue("Objects",1);
 
     // Set number of Objects
     program.setUniformValue("numObjects",numObjects);
@@ -90,44 +142,6 @@ void GLANN::initShader(){
 
     // Use texture unit 0 which contains cube.png
     program.setUniformValue("height", height);
-}
-
-void GLANN::render(){
-    // Set random seed
-    program.setUniformValue("seed", ((float)qrand()/RAND_MAX));
-
-    //Set number of alredy rendered passes
-    program.setUniformValue("numRenderPass",mRenderPasses);
-
-    //Bind last rendered Image
-    pixelsRenderedImage = bindTexture(*renderedImage);
-
-    //Load Identity
-    glLoadIdentity();
-
-    //Move to rendering point
-    glTranslatef( -1.0, -1.0, 0.0f );
-
-    glEnable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, pixelsScene);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, pixelsRenderedImage);
-
-    // Draw geometry
-    //Render textured quad
-    glBegin( GL_QUADS );
-        glTexCoord2f( 0.f, 0.f ); glVertex2f( 0, 0);
-        glTexCoord2f( 1.f, 0.f ); glVertex2f( 2.0, 0);
-        glTexCoord2f( 1.f, 1.f ); glVertex2f( 2.0, 2.0);
-        glTexCoord2f( 0.f, 1.f ); glVertex2f( 0, 2.0);
-     glEnd();
-
-     //increment number of rendered passes
-     mRenderPasses++;
-     //qDebug() << mRenderPasses << "\n";
 }
 
 void GLANN::getFeedbackTexture(){
@@ -144,5 +158,4 @@ void GLANN::getFeedbackTexture(){
                                      renderedImageUCHAR[i*4+2],
                                      renderedImageUCHAR[i*4+3]));
     }
-
 }

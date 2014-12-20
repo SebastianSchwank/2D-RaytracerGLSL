@@ -13,6 +13,8 @@
 #include <QImage>
 #include <QVector>
 
+#include <QtGui/QOpenGLFramebufferObject>
+
 #include "scene.h"
 #include "playground.h"
 #include "Floatbits.h"
@@ -41,6 +43,7 @@ private:
 
     void initShader();
     void initTextures();
+    void initFbo();
 
     unsigned int width;
     unsigned int height;
@@ -52,7 +55,7 @@ private:
 
     QGLShaderProgram program;
 
-    GLuint pixelsRenderedImage;
+    GLint pixelsRenderedImage;
     GLuint pixelsScene;
     unsigned char *renderedImageUCHAR;
 
