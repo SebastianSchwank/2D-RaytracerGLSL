@@ -11,6 +11,8 @@ uniform int numObjects;
 uniform int width;
 uniform int height;
 
+uniform float period = 0.0;
+
 const float pi = 3.14159265359;
 
 uniform float seed = pi;
@@ -22,15 +24,9 @@ float unpack(const vec4 value)
    return(dot(value, bitSh));
 }
 
-//random [0..1]
-highp float rand(vec2 co,float seed)
+float rand(vec3 co)
 {
-    highp float a = 12.9898;
-    highp float b = 78.233;
-    highp float c = 43758.5453;
-    highp float dt= dot(co.xy ,vec2(a,b));
-    highp float sn= mod(dt,3.14);
-    return fract(sin(sn*seed*pi) * c);
+    return fract(sin( dot(co.xyz ,vec3(12.9898,78.233,45.5432) )) * 43758.5453);
 }
 
 //Calculate intersection between 2 Line segments
@@ -61,22 +57,22 @@ void main()
 {
     vec4 renderedImagePixel = texture(CalculatedImage,gl_TexCoord[0].st);
 
-    float randomFl = rand(gl_TexCoord[0].st,seed);
-    randomFl = rand(gl_TexCoord[0].st,randomFl);
+    float randomFl = rand(vec3(gl_TexCoord[0].st.x,gl_TexCoord[0].st.y,seed));
 
-    float alpha = randomFl*pi*pi;
+    float alpha = randomFl*pi*2.0;
     float x = (gl_TexCoord[0].st.x);
     float y = (gl_TexCoord[0].st.y);
 
     vec3 intersecBuffer = vec3(0.0,0.0,99999.9999);
+    float accZBuffer = 0.0;
     int zIndex = -1;
 
     for(int i = 0; i < numObjects; i++){
         highp float x1,x2,y1,y2;
-        x1 = unpack(texelFetch(Objects,ivec2(i,5),0));
-        y1 = unpack(texelFetch(Objects,ivec2(i,4),0));
-        x2 = unpack(texelFetch(Objects,ivec2(i,3),0));
-        y2 = unpack(texelFetch(Objects,ivec2(i,2),0));
+        x1 = unpack(texelFetch(Objects,ivec2(i,7),0));
+        y1 = unpack(texelFetch(Objects,ivec2(i,6),0));
+        x2 = unpack(texelFetch(Objects,ivec2(i,5),0));
+        y2 = unpack(texelFetch(Objects,ivec2(i,4),0));
 
         vec3 currBuff = lineSegmentIntersection(vec2(x,y),vec2(cos(alpha),sin(alpha)),
                                                 vec2(x1,y1),vec2(x2,y2));
@@ -87,19 +83,27 @@ void main()
         }
     }
 
-    float bright = unpack(texelFetch(Objects,ivec2(zIndex,1),0))*10.0;
-    vec4 color = texelFetch(Objects,ivec2(zIndex,0),0);
+    accZBuffer += intersecBuffer.z;
+
+    vec4 color = texelFetch(Objects,ivec2(zIndex,3),0);
+
+    float phase = unpack(texelFetch(Objects,ivec2(zIndex,2),0));
+    float wavelength = unpack(texelFetch(Objects,ivec2(zIndex,1),0));
+
+    float bright = 1.0;
+            //unpack(texelFetch(Objects,ivec2(zIndex,3),0))
+              //     *5.0*(1.0+sin(accZBuffer*wavelength*2*pi+(period+phase)*2*pi));
 
     //color = vec4(gl_TexCoord[0].st.x,gl_TexCoord[0].st.y,0.0,0.0);
 
     vec4 currTexel = vec4(bright*color.r,bright*color.g,bright*color.b,1.0);
 
     renderedImagePixel = (renderedImagePixel * numRenderPass + currTexel)/(numRenderPass+1);
-/*
-    renderedImagePixel = vec4(unpack(texelFetch(Objects,ivec2(x*5,y*6),0)),
-                              unpack(texelFetch(Objects,ivec2(x*5,y*6),0)),
-                              unpack(texelFetch(Objects,ivec2(x*5,y*6),0)),1.0);
-*/
+
+    renderedImagePixel = vec4(unpack(texelFetch(Objects,ivec2(x*7,y*7),0)),
+                              unpack(texelFetch(Objects,ivec2(x*7,y*7),0)),
+                              unpack(texelFetch(Objects,ivec2(x*7,y*7),0)),1.0);
+
     gl_FragColor = renderedImagePixel;
 }
 

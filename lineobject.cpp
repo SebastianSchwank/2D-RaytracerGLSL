@@ -3,7 +3,9 @@
 LineObject::LineObject(){
 }
 
-LineObject::LineObject(float x0, float y0, float x1, float y1, float emission, unsigned int color){
+LineObject::LineObject(float x0, float y0, float x1, float y1,
+                       float emission, unsigned int color,
+                       float phase, float frequency){
     FloatBits UintRgba;
 
     UintRgba.i_ = (unsigned int) (x0*4294967295.0);
@@ -14,10 +16,16 @@ LineObject::LineObject(float x0, float y0, float x1, float y1, float emission, u
     mData.append(UintRgba.i_);
     UintRgba.i_ = (unsigned int) (y1*4294967295.0);
     mData.append(UintRgba.i_);
+
+    mData.append(color);
+
     UintRgba.i_ = (unsigned int) (emission*4294967295.0);
     mData.append(UintRgba.i_);
 
-    mData.append(color);
+    UintRgba.i_ = (unsigned int) (phase*4294967295.0);
+    mData.append(UintRgba.i_);
+    UintRgba.i_ = (unsigned int) (frequency*4294967295.0);
+    mData.append(UintRgba.i_);
 }
 
 unsigned int LineObject::getAttributeAsPixel(int i){
@@ -25,6 +33,6 @@ unsigned int LineObject::getAttributeAsPixel(int i){
 }
 
 int LineObject::getSize(){
-    //Size of one line-object in "ints"/"floats"
-    return 6;
+    //Size of one line-object in "uints"
+    return 8;
 }

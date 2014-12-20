@@ -137,11 +137,14 @@ void GLANN::initShader(){
     // Set number of Objects
     program.setUniformValue("numObjects",numObjects);
 
-    // Use texture unit 0 which contains cube.png
+    //width
     program.setUniformValue("width", width);
 
-    // Use texture unit 0 which contains cube.png
+    //height
     program.setUniformValue("height", height);
+
+    float period = 0.0;
+    program.setUniformValue("period",period);
 }
 
 void GLANN::getFeedbackTexture(){

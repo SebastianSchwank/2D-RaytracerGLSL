@@ -7,6 +7,7 @@
 #include "Floatbits.h"
 
 #include <QString>
+#include <QTime>
 
 class SceneLoader
 {
