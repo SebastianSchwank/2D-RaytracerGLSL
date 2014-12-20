@@ -77,7 +77,7 @@ void GLANN::render(){
      // Getting the pixels from the upper left 512x512 part of the screen:
 
      //Get the rendered Image as Texure
-     //glReadBuffer(GL_BACK);
+     glReadBuffer(GL_BACK);
      glEnable(GL_TEXTURE_2D);
 
      glBindTexture(GL_TEXTURE_2D,pixelsRenderedImage);

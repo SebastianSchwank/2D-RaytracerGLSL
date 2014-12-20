@@ -74,7 +74,7 @@ void main()
         x2 = unpack(texelFetch(Objects,ivec2(j,5),0));
         y2 = unpack(texelFetch(Objects,ivec2(j,4),0));
 
-        vec3 currBuff = lineSegmentIntersection(vec2(x,y),vec2(cos(alpha),sin(alpha)),
+        vec3 currBuff = lineSegmentIntersection(vec2(x,y),vec2(cos(alpha)*9.0,sin(alpha)*9.0),
                                                 vec2(x1,y1),vec2(x2,y2));
 
         if( (currBuff.z < intersecBuffer.z) && (currBuff.z >= 0.0)){
@@ -93,7 +93,9 @@ void main()
     float bright = unpack(texelFetch(Objects,ivec2(zIndex,3),0));
 
     float amplitude = 5.0 * bright *
-                      (1.0+sin(accZBuffer*2.0*pi*1.0/wavelength+period*2.0*pi+phase*2.0*pi))/2.0;
+                      (1.0+sin(accZBuffer*2.0*pi*wavelength*100.0 +
+                               phase * 2.0 * pi +
+                               period * 2.0 * pi))/2.0;
 
     //color = vec4(gl_TexCoord[0].st.x,gl_TexCoord[0].st.y,0.0,0.0);
 
@@ -101,10 +103,10 @@ void main()
     //if(zIndex == false) currTexel = vec4(1.0,0,0,1.0);
     //else currTexel = vec4(0.0,1.0,1.0,1.0);
 
-    renderedImagePixel = clamp((renderedImagePixel * numRenderPass + currTexel)/(numRenderPass+1),0,1);
+    renderedImagePixel = (renderedImagePixel * numRenderPass + currTexel)/(numRenderPass+1.0);
 
     //renderedImagePixel = texelFetch(Objects,ivec2(x*14,y*6),0);
 
-    gl_FragColor = currTexel;
+    gl_FragColor = renderedImagePixel;
 }
 
