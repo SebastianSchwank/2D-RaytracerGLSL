@@ -8,13 +8,13 @@ SceneLoader::SceneLoader(QString filename)
     if(filename == "demoScene"){
         mScene = new Scene();
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < 1; i++){
             LineObject l0(1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
                           1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
-                          qRgba((1.0f*qrand()/RAND_MAX)*255.0,
-                                (1.0f*qrand()/RAND_MAX)*255.0,
-                                (1.0f*qrand()/RAND_MAX)*255.0,255),
-                          0.7,
+                          qRgba(255.0,
+                                255.0,
+                                255.0,255),
+                          0.9,
                           1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
                           0.0);
             mScene->addObject(l0);
@@ -23,14 +23,15 @@ SceneLoader::SceneLoader(QString filename)
         for(int i = 0; i < 1; i++){
             LineObject l0(1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
                           1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
-                          qRgba((1.0f*qrand()/RAND_MAX)*255.0,
-                                (1.0f*qrand()/RAND_MAX)*255.0,
-                                (1.0f*qrand()/RAND_MAX)*255.0,255,
-                                1.0),
+                          qRgba(255.0,
+                                255.0,
+                                0.0,255),
                           0.0,
-                          1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX);
+                          1.0f*qrand()/RAND_MAX,1.0f*qrand()/RAND_MAX,
+                          1.0);
             mScene->addObject(l0);
          }
+
     }
 }
 

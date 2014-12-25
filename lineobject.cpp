@@ -29,6 +29,7 @@ LineObject::LineObject(float x0, float y0, float x1, float y1,
     mData.append(UintRgba.i_);
 
     UintRgba.i_ = (unsigned int) (reflectivity*4294967295.0);
+    mData.append(UintRgba.i_);
 }
 
 unsigned int LineObject::getAttributeAsPixel(int i){
