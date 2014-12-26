@@ -1,6 +1,9 @@
 #include "glann.h"
 
-GLANN::GLANN(unsigned int width, unsigned int height, unsigned int renderPasses, Scene *renderScene)
+
+GLANN::GLANN(unsigned int width, unsigned int height, unsigned int renderPasses, Scene *renderScene,
+             QWidget *parent, QGLWidget *shareWidget)
+      : QGLWidget(parent, shareWidget)
 {
     setFixedSize(width,height);
     this->width = width;
@@ -8,15 +11,43 @@ GLANN::GLANN(unsigned int width, unsigned int height, unsigned int renderPasses,
 
     qsrand((uint)QTime::currentTime().msec());
 
+    mScene = renderScene;
     SceneImage = renderScene->getSceneImage();
     numObjects = SceneImage->width();
     renderedImage = new Playground(width);
 }
 
 void GLANN::initializeGL(){
+    setAutoBufferSwap(true);
+
+    this->makeCurrent();
     initializeGLFunctions();
+
+    // Generate 2 VBOs
+    glGenBuffers(1, &vboId0);
+    glGenBuffers(1, &vboId1);
+
     initShader();
     initTextures();
+
+    VertexData vertices[] = {
+                 // Vertex data for face 0
+                 {QVector3D(-1.0, -1.0,  1.0), QVector2D(0.0, 0.0)},  // v0
+                 {QVector3D( 1.0, -1.0,  1.0), QVector2D(1.0, 0.0)}, // v1
+                 {QVector3D(-1.0,  1.0,  1.0), QVector2D(1.0, 1.0)},  // v2
+                 {QVector3D( 1.0,  1.0,  1.0), QVector2D(0.0, 1.0)}, // v3
+    };
+    // Transfer vertex data to VBO 0
+    glBindBuffer(GL_ARRAY_BUFFER, vboId0);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(VertexData), vertices, GL_STATIC_DRAW);
+
+     GLushort indices[] = {
+                  0,  1,  2,  3,  3,
+    };
+    // Transfer index data to VBO 1
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 5 * sizeof(GLushort), indices, GL_STATIC_DRAW);
+
     //initFbo();
     // Use QBasicTimer because its faster than QTimer
     timer.start(0, this);
@@ -28,6 +59,40 @@ void GLANN::initFbo(){
 
 void GLANN::resizeGL(int w, int h){
     glViewport(0,0,w,h);
+}
+
+void GLANN::mouseMoveEvent(QMouseEvent* event){
+    if(event->buttons() == Qt::LeftButton){
+        LineObject newPoly(xTemp,yTemp, 1.0f*event->pos().x()/width, 1.0f-1.0f*event->pos().y()/width,qRgba(255,255,255,255),0.4,0.5,0.3,0.0);
+        mScene->addObject(newPoly);
+
+        SceneImage = mScene->getSceneImage();
+        numObjects = SceneImage->width();
+
+        //Bind WeightmapTexture
+        pixelsScene = QGLWidget::bindTexture(*SceneImage);
+
+        qDebug() << xTemp << yTemp << numObjects;
+
+        //Bind last rendered Image
+        renderedImage->fill(qRgba(0,0,0,255));
+        pixelsRenderedImage = bindTexture(*renderedImage);
+
+        mRenderPasses = 0;
+
+        // Set number of Objects
+        program.setUniformValue("numObjects",numObjects);
+
+        xTemp = 1.0f*event->pos().x()/width;
+        yTemp = 1.0f-1.0f*event->pos().y()/height;
+    }
+}
+
+void GLANN::mousePressEvent(QMouseEvent* event){
+    if(event->button() == Qt::LeftButton){
+            xTemp = 1.0f*event->pos().x()/width;
+            yTemp = 1.0f-1.0f*event->pos().y()/height;
+        }
 }
 
 void GLANN::paintGL(){
@@ -52,32 +117,48 @@ void GLANN::render(){
     //pixelsRenderedImage = bindTexture(*renderedImage);
 
     //Load Identity
-    glLoadIdentity();
+    //glLoadIdentity();
 
     //Move to rendering point
-    glTranslatef( -1.0, -1.0, 0.0f );
-
-    glEnable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, pixelsScene);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, pixelsRenderedImage);
+    //glTranslatef( -1.0, -1.0, 0.0f );
 
     // Draw geometry
-    //Render textured quad
-    glBegin( GL_QUADS );
-        glTexCoord2f( 0.f, 0.f ); glVertex2f( 0, 0);
-        glTexCoord2f( 1.f, 0.f ); glVertex2f( 2.0, 0);
-        glTexCoord2f( 1.f, 1.f ); glVertex2f( 2.0, 2.0);
-        glTexCoord2f( 0.f, 1.f ); glVertex2f( 0, 2.0);
-     glEnd();
+    // Tell OpenGL which VBOs to use
 
-     // Getting the pixels from the upper left 512x512 part of the screen:
+         // Tell OpenGL which VBOs to use
+         glBindBuffer(GL_ARRAY_BUFFER, vboId0);
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId1);
+
+         // Offset for position
+         int offset = 0;
+
+         // Tell OpenGL programmable pipeline how to locate vertex position data
+         int vertexLocation = program.attributeLocation("a_position");
+         program.enableAttributeArray(vertexLocation);
+         glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (const void *)offset);
+
+         // Offset for texture coordinate
+         offset += sizeof(QVector3D);
+
+         // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+         int texcoordLocation = program.attributeLocation("a_texcoord");
+         program.enableAttributeArray(texcoordLocation);
+         glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (const void *)offset);
+
+         glEnable(GL_TEXTURE_2D);
+
+         glActiveTexture(GL_TEXTURE1);
+         glBindTexture(GL_TEXTURE_2D, pixelsScene);
+
+         glActiveTexture(GL_TEXTURE0);
+         glBindTexture(GL_TEXTURE_2D, pixelsRenderedImage);
+
+         // Draw cube geometry using indices from VBO 1
+         glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_SHORT, 0);
+
 
      //Get the rendered Image as Texure
-     glReadBuffer(GL_BACK);
+     //glReadBuffer(GL_BACK);
      glEnable(GL_TEXTURE_2D);
 
      glBindTexture(GL_TEXTURE_2D,pixelsRenderedImage);
