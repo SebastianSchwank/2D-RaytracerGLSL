@@ -39,7 +39,10 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QMessageBox>
 #include <QLabel>
+#include <QGLFramebufferObject>
+
 #include <sceneloader.h>
 
 #ifndef QT_NO_OPENGL
@@ -49,10 +52,17 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
+        QMessageBox::information(0, "OpenGL framebuffer objects 2",
+                                 "This system does not support OpenGL/framebuffer objects.");
+        return -1;
+    }
+
     app.setApplicationName("GPU_RT_2D");
     app.setApplicationVersion("0.1");
 #ifndef QT_NO_OPENGL
-    GLANN widget(512, 512, 10, (new SceneLoader("demoScene"))->getScene());
+    GLANN widget(10, (new SceneLoader("demoScene"))->getScene());
 
     widget.show();
 #else

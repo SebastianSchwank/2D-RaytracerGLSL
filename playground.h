@@ -13,7 +13,7 @@
 class Playground : public QImage
 {
 public:
-    Playground(unsigned int neurons);
+    Playground(unsigned int width, unsigned int height);
 };
 
 #endif // PLAYGROUND_H
