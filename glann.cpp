@@ -77,7 +77,7 @@ void GLANN::resizeGL(int w, int h){
 
 void GLANN::mouseMoveEvent(QMouseEvent* event){
     if(event->buttons() == Qt::LeftButton){
-        LineObject newPoly(xTemp,yTemp, 1.0f*event->pos().x()/width, 1.0f-1.0f*event->pos().y()/width,qRgba(255,255,255,255),0.4,0.5,0.3,0.0);
+        LineObject newPoly(xTemp,yTemp, 1.0f*event->pos().x()/width, 1.0f-1.0f*event->pos().y()/height,qRgba(255,255,255,255),0.4,0.5,0.3,0.0);
         mScene->addObject(newPoly);
 
         delete SceneImage;
@@ -226,8 +226,8 @@ void GLANN::initTextures(){
     pixelsRandom = QGLWidget::bindTexture(*randomImage);
 
     // Poor filtering. Needed !
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
