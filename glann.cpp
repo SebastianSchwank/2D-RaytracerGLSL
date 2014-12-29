@@ -15,6 +15,8 @@ GLANN::GLANN(unsigned int renderPasses, Scene *renderScene,
     setFixedHeight(height);
     this->width = width;
     this->height = height;
+    this->TexWidth = width/4;
+    this->TexHeight = height/4;
 
     qsrand((uint)QTime::currentTime().msec());
 
@@ -67,7 +69,7 @@ void GLANN::initializeGL(){
 }
 
 bool GLANN::initFbo(){
-    fbo = new QOpenGLFramebufferObject(width, height);
+    fbo = new QOpenGLFramebufferObject(TexWidth, TexHeight);
     return true;
 }
 
@@ -77,7 +79,7 @@ void GLANN::resizeGL(int w, int h){
 
 void GLANN::mouseMoveEvent(QMouseEvent* event){
     if(event->buttons() == Qt::LeftButton){
-        LineObject newPoly(xTemp,yTemp, 1.0f*event->pos().x()/width, 1.0f-1.0f*event->pos().y()/height,qRgba(255,255,255,255),0.4,0.5,0.3,0.0);
+        LineObject newPoly(xTemp,yTemp, 1.0f*event->pos().x()/width, 1.0f-1.0f*event->pos().y()/height,qRgba(255,255,255,255),0.1,0.0,0.0,0.0);
         mScene->addObject(newPoly);
 
         delete SceneImage;
@@ -148,7 +150,7 @@ void GLANN::render(){
 
          // Render to our framebuffer
          fbo->bind();
-         glViewport(0,0,width,height);
+         glViewport(0,0,TexWidth,TexHeight);
 
          // Tell OpenGL which VBOs to use
          glBindBuffer(GL_ARRAY_BUFFER, vboId0);
@@ -216,7 +218,7 @@ void GLANN::initTextures(){
     //glEnable(GL_TEXTURE_2D);
 
     //FEEDBACK Texture
-    renderedImageUCHAR = new unsigned char [width*height*4];
+    renderedImageUCHAR = new unsigned char [TexWidth*TexHeight*4];
 
     //Bind SceneTexture
     pixelsScene = QGLWidget::bindTexture(*SceneImage);

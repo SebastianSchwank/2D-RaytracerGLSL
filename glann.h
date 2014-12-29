@@ -60,6 +60,8 @@ private:
 
     unsigned int width;
     unsigned int height;
+    unsigned int TexWidth;
+    unsigned int TexHeight;
 
     QBasicTimer timer;
 
@@ -73,7 +75,7 @@ private:
     QOpenGLFramebufferObject *fbo;
 
     GLuint pixelsRandom;
-    GLint pixelsRenderedImage;
+    GLuint pixelsRenderedImage;
     GLuint pixelsScene;
     unsigned char *renderedImageUCHAR;
 

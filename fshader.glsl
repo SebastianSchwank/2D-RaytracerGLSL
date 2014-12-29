@@ -62,7 +62,7 @@ vec3 lineSegmentIntersection(vec2 r0, vec2 r1, vec2 a, vec2 b)
 vec2 reflect(vec2 V,vec2 a,vec2 b){
     vec2 N = vec2(-(b-a).y,(b-a).x);
          N = N / sqrt((N.x*N.x)+(N.y*N.y));
-    vec2 O = V - 2 * dot(V,N) * N;
+    vec2 O = V - 2.0 * dot(V,N) * N;
     //O = 9.0*O/sqrt((O.x+O.x)+(O.y+O.y));
     return O;
 }
@@ -82,8 +82,8 @@ void main()
         float randomFl1 = unpack(texture2D(random,vec2((v_texcoord.x+seedY)/2.0,(v_texcoord.y+seedX))/2.0));
 
         //Supersampling
-        float x = v_texcoord.x + randomFl0/width;
-        float y = v_texcoord.y + randomFl1/height;
+        float x = v_texcoord.x + randomFl0/float(width);
+        float y = v_texcoord.y + randomFl1/float(height);
         //Random Angle Calculation
         float alpha = randomFl0*pi*2.0;
         vec2 ray = vec2(cos(alpha)*9.0,sin(alpha)*9.0);
@@ -98,10 +98,10 @@ void main()
         for(int j = 0; j < numObjects; j++){
             if(j != prevZIndex){
                 highp float x1,x2,y1,y2;
-                x1 = unpack(texelFetch(Objects,vec2(j,8),vec2(numObjects,9)));
-                y1 = unpack(texelFetch(Objects,vec2(j,7),vec2(numObjects,9)));
-                x2 = unpack(texelFetch(Objects,vec2(j,6),vec2(numObjects,9)));
-                y2 = unpack(texelFetch(Objects,vec2(j,5),vec2(numObjects,9)));
+                x1 = unpack(texelFetch(Objects,vec2(float(j),8.0),vec2(float(numObjects),9.0)));
+                y1 = unpack(texelFetch(Objects,vec2(float(j),7.0),vec2(float(numObjects),9.0)));
+                x2 = unpack(texelFetch(Objects,vec2(float(j),6.0),vec2(float(numObjects),9.0)));
+                y2 = unpack(texelFetch(Objects,vec2(float(j),5.0),vec2(float(numObjects),9.0)));
 
                 vec3 currBuff = lineSegmentIntersection(vec2(x,y),ray,
                                                         vec2(x1,y1),vec2(x2,y2));
@@ -113,13 +113,14 @@ void main()
             }
         }
 
+        accZBuffer = intersecBuffer.z;
 
-        vec4 color = mulColor * texelFetch(Objects,ivec2(zIndex,3),vec2(numObjects,9));
+        vec4 color = mulColor * texelFetch(Objects,vec2(float(zIndex),3.0),vec2(float(numObjects),9.0));
 
-        float phase = unpack(texelFetch(Objects,ivec2(zIndex,2),vec2(numObjects,9)));
-        float wavelength = unpack(texelFetch(Objects,ivec2(zIndex,1),vec2(numObjects,9)));
+        float phase = unpack(texelFetch(Objects,vec2(float(zIndex),2.0),vec2(float(numObjects),9.0)));
+        float wavelength = unpack(texelFetch(Objects,vec2(float(zIndex),1.0),vec2(float(numObjects),9.0)));
 
-        float bright = unpack(texelFetch(Objects,ivec2(zIndex,4),vec2(numObjects,9)));
+        float bright = unpack(texelFetch(Objects,vec2(float(zIndex),4.0),vec2(float(numObjects),9.0)));
 
         float amplitude = 5.0 * bright *
                           (1.0+sin(accZBuffer*2.0*pi*wavelength*100.0 +
