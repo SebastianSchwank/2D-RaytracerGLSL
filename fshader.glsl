@@ -134,7 +134,7 @@ void main()
         //if(prevZIndex != -2) currTexel = vec4(1.0,0,0,1.0);
         renderedImagePixel = (renderedImagePixel * float(numRenderPass) + currTexel)/float(numRenderPass+1);
 
-        //renderedImagePixel = vec4(unpack(texelFetch(Objects,vec2(x*numObjects,y*9.0),vec2(float(numObjects),9.0))));
+        renderedImagePixel = vec4(unpack(texelFetch(Objects,vec2(x*numObjects,y*8.0),vec2(float(numObjects),8.0))));
         //renderedImagePixel = vec4(intersecBuffer.x,intersecBuffer.y,intersecBuffer.z,1.0);
     }
 
